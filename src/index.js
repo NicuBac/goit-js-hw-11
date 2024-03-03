@@ -29,7 +29,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function performSearch() {
     galleryContainer.innerHTML = '';
-    document.querySelector('.load-more').style.display = 'none';
+    document.querySelector('.load-more').addEventListener('click', function () {
+      currentPage++;
+      performSearch();
+    });
 
     fetch(
       `${baseUrl}?key=${apiKey}&q=${searchQuery}&image_type=photo&orientation=horizontal&safesearch=true&page=${currentPage}`
