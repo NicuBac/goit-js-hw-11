@@ -27,13 +27,12 @@ document.addEventListener('DOMContentLoaded', function () {
       performSearch();
     });
 
-  function performSearch() {
-    galleryContainer.innerHTML = '';
-    document.querySelector('.load-more').addEventListener('click', function () {
-      currentPage++;
-      performSearch();
-    });
+  document.querySelector('.load-more').addEventListener('click', function () {
+    currentPage++;
+    performSearch();
+  });
 
+  function performSearch() {
     fetch(
       `${baseUrl}?key=${apiKey}&q=${searchQuery}&image_type=photo&orientation=horizontal&safesearch=true&page=${currentPage}`
     )
@@ -41,9 +40,11 @@ document.addEventListener('DOMContentLoaded', function () {
       .then(data => {
         if (data.hits.length > 0) {
           totalHits = data.totalHits;
-          displayImages(data.hits);
+          displayImages(data.hits, currentPage === 1);
+
           document.querySelector('.load-more').style.display = 'block';
           notiflixNotify(`Hooray! We found ${totalHits} images.`);
+
           if (currentPage === 1) {
             initSimpleLightbox();
           } else {
@@ -74,19 +75,23 @@ document.addEventListener('DOMContentLoaded', function () {
       });
   }
 
-  function displayImages(images) {
+  function displayImages(images, clearGallery) {
+    if (clearGallery) {
+      galleryContainer.innerHTML = '';
+    }
+
     images.forEach(function (image) {
       let card = `
-        <a href="${image.largeImageURL}" class="photo-card" data-lightbox="gallery">
-          <img src="${image.webformatURL}" alt="${image.tags}" loading="lazy" />
-          <div class="info">
-            <p class="info-item"><b>Likes:</b> ${image.likes}</p>
-            <p class="info-item"><b>Views:</b> ${image.views}</p>
-            <p class="info-item"><b>Comments:</b> ${image.comments}</p>
-            <p class="info-item"><b>Downloads:</b> ${image.downloads}</p>
-          </div>
-        </a>
-      `;
+      <a href="${image.largeImageURL}" class="photo-card" data-lightbox="gallery">
+        <img src="${image.webformatURL}" alt="${image.tags}" loading="lazy" />
+        <div class="info">
+          <p class="info-item"><b>Likes:</b> ${image.likes}</p>
+          <p class="info-item"><b>Views:</b> ${image.views}</p>
+          <p class="info-item"><b>Comments:</b> ${image.comments}</p>
+          <p class="info-item"><b>Downloads:</b> ${image.downloads}</p>
+        </div>
+      </a>
+    `;
       galleryContainer.insertAdjacentHTML('beforeend', card);
     });
   }
